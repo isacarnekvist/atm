@@ -2,7 +2,7 @@ package main
 
 import (
     "net"
-    "fmt"
+    //"fmt"
 )
 
 // Förslagsvis ha en map där ett namn mappar till denna struct:
@@ -29,7 +29,7 @@ func main() {
 
 func handleConnection(c net.Conn) {
     print("Connection started\n")
-    data := make([]byte, 10)
+    /*data := make([]byte, 10)
     n, err := c.Read(data)                                      // Läs bytes till variabeln "data"
     if err != nil {
         print(err)
@@ -42,5 +42,6 @@ func handleConnection(c net.Conn) {
     response := []byte{0xd, 0xe, 0xa, 0xd, 0xb, 0xe, 0xe, 0xf}  // Det finns ett paket "bytes" för att hantera
     c.Write(response)                                           // bytesträngar som nog blir smidigare
     c.Close()
+    */
     print("Connection closed\n")
 }
