@@ -5,6 +5,13 @@ import (
     "fmt"
 )
 
+// Förslagsvis ha en map där ett namn mappar till denna struct:
+type User struct {
+    password    string 
+    balance     int
+    temp_code   []int      // Hur fungerar allokeringen här?
+}
+
 func main() {
     print("Starting server\n")
     ln, err := net.Listen("tcp", ":8080")                       // Lyssna på port 8080
