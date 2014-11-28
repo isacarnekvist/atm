@@ -12,15 +12,21 @@ func main() {
         return
         print(conn)
     }
-    // Send something!
+
+    // Skicka data
     data := []byte{0x41, 0x42}
     conn.Write(data)
+
     // Ta emot!
     resp := make([]byte, 8)
     conn.Read(resp)
+
+    // Skriv ut
     for _, d := range resp {
         fmt.Printf("%x", d)
     }
     print("\n")
+
+    // Stäng
     conn.Close()
 }
