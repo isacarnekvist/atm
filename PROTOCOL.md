@@ -47,6 +47,7 @@ checksum.
 2. Size of next transmission (one byte is sufficient since max is 80)
 3. Size of eventual second transmisson (optional)
 
+<!---->
     Add language        0x1002
     Add/set banner      0x1003
     Add/set login text  0x1004
