@@ -101,10 +101,6 @@ checksum.
             
             
             ========================
-            #  -Update statement-  #
-            #     yes, update      #->
-            ------------------------
-            ========================
             #    -Add language-    #->
             #  language name size  #
             ------------------------
