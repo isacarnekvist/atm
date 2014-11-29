@@ -23,6 +23,7 @@ be sufficient.
 3. Bytes 3-10: 64 bit integer argument i.e. balance, withdrawal amount,
       user card number, password...
 
+
     From client:
     Login       0x0000
     Balance     0x0001
