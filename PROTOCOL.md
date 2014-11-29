@@ -45,7 +45,14 @@ checksum.
 1. Type of update "op-code" (these should be different from op-codes 
    in customer related packages)
 2. Size of next transmission (one byte is sufficient since max is 80)
-3. Size of eventual second transmisson (optional)
+3. Size of second transmisson (needed for some actions)
+
+The reason the size of two consecutive data transmissions is needed 
+is that some actions need two arguments. For example if we want to 
+add or change a banner for a certain language, we first need the name
+of the language and then the new string two add. So therefore we need
+the size of both the language name package and the following package
+with the new banner string.
 
 <!---->
     Add language        0x1002
