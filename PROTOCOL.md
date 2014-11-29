@@ -10,7 +10,14 @@
 6. Start over from step 2
 
 ## Package description
+Package size is always 10 bytes except for update data
+transmissions.
 ### Customer related
+Suggestion for splitting package in to byte parts:
+1. Action "op-code" (client) OR Answer accept/decline (server)
+2. For future use?
+3-10. 64 bit integer argument i.e. balance, withdrawal amount,
+      user card number, password...
 
 ### Update related
 
@@ -26,30 +33,30 @@ Server                              Client
         #    no more update    #
         ------------------------
 
+        
         ========================
       <-#       -Login-        #
         #     card number      #
         ------------------------
-
         ========================
         #    -Login answer-    #->
         #        accept        #
         ------------------------
-        
         ========================
       <-#     -balance inq-    #
         ------------------------
-
         ========================
         #   -Balance answer-   #->
         #        amount        #
         ------------------------
-
         ========================
       <-#   -Withdrawal req-   #
         #        amount        #
         ------------------------
-
+        ========================
+      <-#   -Withdrawal req-   #
+        #     one-use-code     #
+        ------------------------
         ========================
         #   -Withdrawal ans-   #->
         #    accept/decline    #
@@ -57,12 +64,12 @@ Server                              Client
         ========================
       <-#       -Logout-       #
         ------------------------
-
+        
+        
         ========================
         # -Update statement-   #
         #     yes, update      #->
         ------------------------
-        
         ========================
         #    -Add language-    #->
         #  language name size  #
