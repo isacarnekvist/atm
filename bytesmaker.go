@@ -4,6 +4,8 @@
 
 package bytesmaker 
 
+import "unsafe"
+
 /* Converts data of types int, int32, int64 and string 
    to a byte array. Least significant byte is at return 
    arrays index 0. 
@@ -15,8 +17,8 @@ func Bytes(data interface{}) []byte {
     res := make([]byte, 8)
     switch data.(type) {
     case int:
-        res = make([]byte, 4)
         x := data.(int)
+        res = make([]byte, unsafe.Sizeof(x))
         for i, _ := range res {
             res[i] = byte(x & 0xff)
             x = x >> 8
