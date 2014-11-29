@@ -14,6 +14,7 @@ Package size is always 10 bytes except for update data
 transmissions.
 ### Customer related
 Suggestion for splitting package in to byte parts:
+
 1. Action "op-code" (client) OR Answer accept/decline (server)
 2. For future use?
 3. Bytes 3-10: 64 bit integer argument i.e. balance, withdrawal amount,
