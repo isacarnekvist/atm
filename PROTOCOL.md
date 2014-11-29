@@ -24,7 +24,7 @@ be sufficient.
       user card number, password...
 
 
-Op codes:
+\ \
     From client:
     Login       0x0000
     Balance     0x0001
