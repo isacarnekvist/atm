@@ -24,6 +24,7 @@ be sufficient.
       user card number, password...
 
 
+
     From client:
     Login       0x0000
     Balance     0x0001
