@@ -16,7 +16,7 @@ transmissions.
 Suggestion for splitting package in to byte parts:
 1. Action "op-code" (client) OR Answer accept/decline (server)
 2. For future use?
-3-10. 64 bit integer argument i.e. balance, withdrawal amount,
+3. Bytes 3-10: 64 bit integer argument i.e. balance, withdrawal amount,
       user card number, password...
 
 ### Update related
