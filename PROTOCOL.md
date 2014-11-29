@@ -2,7 +2,7 @@
 ## Order of communication
 1. Connection started
 2. Server states if something should be updated or not,
-  this is of course followed by un update if there is one
+  this is of course followed by an update if there is one
 3. Login request
 4. If login request accepted, do regular customer mode 
    communication
