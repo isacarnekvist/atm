@@ -27,15 +27,15 @@ be sufficient.
 
 <!-- -->
     From client:
-    Login       0x0000
-    Balance     0x0001
-    Withdrawal  0x0002
-    Logout      0x0003
+    Login       0b0000
+    Balance     0b0001
+    Withdrawal  0b0002
+    Logout      0b0003
 
 
     From server:
-    Accept      0x1000
-    Decline     0x1001
+    Accept      0b1000
+    Decline     0b1001
 
 ### Update related
 Suggestion is that all update packages are 10 bytes except for actual
@@ -57,11 +57,11 @@ the size of both the language name packages and the following package
 with the new banner string.
 
 <!---->
-    Add language        0x1002
-    Add/set banner      0x1003
-    Add/set login text  0x1004
-    Add/set ...         0x....
-    No (more) updates   0x1111
+    Add language        0b1002
+    Add/set banner      0b1003
+    Add/set login text  0b1004
+    Add/set ...         0b....
+    No (more) updates   0b1111
 
 
 ## Communication example
