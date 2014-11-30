@@ -14,8 +14,8 @@ import "fmt"
 
    If multiple arguments, all arguments are converted 
    in order to one combined slice of bytes, i.e:
-                                |      int      |string|byte|
-   Bytes("ABC", 1, byte(2)) == [1 0 0 0 0 0 0 0 65 66 67 2]
+                               | string |      int      |byte|
+   Bytes("ABC", 1, byte(2)) == [65 66 67 1 0 0 0 0 0 0 0 2]
 
    Examples:
    x := Bytes("Hello world!")
