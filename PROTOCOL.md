@@ -18,7 +18,7 @@ When client has a request, the answer doesn't need a certain
 "op-code" in the reply. An answer with the correct format will
 be sufficient.
 
-- Byte 1:Action "op-code" (client) OR Answer accept/decline (server)
+- Byte 1: Action "op-code" (client) OR Answer accept/decline (server)
 - Byte 2: For future use?
 - Byte 3-10: 64 bit integer argument i.e. balance, withdrawal amount, 
   user card number, password... The reason for 64 bit is that is that
