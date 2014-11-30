@@ -18,10 +18,11 @@ When client has a request, the answer doesn't need a certain
 "op-code" in the reply. An answer with the correct format will
 be sufficient.
 
-1. Action "op-code" (client) OR Answer accept/decline (server)
-2. For future use?
-3. Bytes 3-10: 64 bit integer argument i.e. balance, withdrawal amount, 
-   user card number, password...
+- Byte 1:Action "op-code" (client) OR Answer accept/decline (server)
+- Byte 2: For future use?
+- Byte 3-10: 64 bit integer argument i.e. balance, withdrawal amount, 
+  user card number, password... The reason for 64 bit is that is that
+  I have a lot of CA$H!!!
 
 
 <!-- -->
@@ -42,16 +43,17 @@ data transmissions. These are always sent from server side only. In
 the real world we should add confirmation from the client with a
 checksum.
 
-1. Type of update "op-code" (these should be different from op-codes 
-   in customer related packages)
-2. Size of next transmission (one byte is sufficient since max is 80)
-3. Size of second transmisson (needed for some actions)
+- Byte 1: Type of update "op-code" (these should be different from op-codes 
+          in customer related packages)
+- Byte 2: Not used
+- Byte 3-6: Size of first transmission (32 bit int)
+- Byte 7-10: Size of second transmission, if the action requires one (32 bit int)
 
 The reason the size of two consecutive data transmissions is needed 
 is that some actions need two arguments. For example if we want to 
 add or change a banner for a certain language, we first need the name
 of the language and then the new string two add. So therefore we need
-the size of both the language name package and the following package
+the size of both the language name packages and the following package
 with the new banner string.
 
 <!---->
