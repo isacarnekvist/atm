@@ -7,7 +7,8 @@ package bytesmaker
 import "unsafe"
 import "fmt"
 
-/* Converts data of types int, int32, int64 and string 
+/* Converts data of types:
+   int, int32, int64, byte and string 
    to a byte array. Least significant byte is at return 
    arrays index 0.
 
