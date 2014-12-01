@@ -18,7 +18,9 @@ is established.
     5. If server accepts, proceed to next state
 3. USER
     1. Client sends one package only
-    2. Server replies with one package only except if client sent logout
+    2. If client sent logout, go to UPDATES,
+    otherwise server replies with one package 
+    only.
 4. Start over from UPDATES state
 
 ## Package description
