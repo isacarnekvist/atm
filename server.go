@@ -217,7 +217,8 @@ func state_user(user User, c net.Conn) error {
             amount := (val >> 32) & 0xffffffff
             /* Let's accept negative balance! More income for the bank! */
             if code == int64(valid_single_use_code) {
-                user.balance -= amount            
+                user.balance -= amount         
+                user.temp_index++   
                 send_ten( server_accept, 0, c )
             } else {
                 send_ten( server_decline, 0, c )
