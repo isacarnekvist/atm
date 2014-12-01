@@ -48,7 +48,8 @@ If unexpected op-code is sent, return error op-code and close connection!
     User number         0x00
     Password            0x01
     Balance             0x02
-    Withdrawal          0x03    Argument in package must be single-use code
+    Withdrawal          0x03    This package should attach single-use code and amount
+                                to withdraw in same package, see Option 2 above
     Logout              0x04
  
  
