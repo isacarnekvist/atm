@@ -30,15 +30,16 @@ be sufficient.
 
 <!-- -->
     From client:
-    Login       0b0000
-    Balance     0b0001
-    Withdrawal  0b0002
-    Logout      0b0003
+    User number         0b0000
+    Password            0b0001
+    Balance             0b0002
+    Withdrawal          0b0003
+    Logout              0b0004
 
 
     From server:
-    Accept      0b1000
-    Decline     0b1001
+    Accept              0b1000
+    Decline             0b1001
 
 ### Update related
 Suggestion is that all update packages are 10 bytes except for actual
@@ -73,12 +74,13 @@ Max. 80 characters long string.
     Add/set banner          0b1003      "Buy stocks in ... bla bla bla. \n"
     Add/set login text      0b1004      "Please enter user number: \n"
     Add/set passw text      0b1005      "Please enter password: \n"
-    Add/set wrong passw     0b1006      "Wrong password \n"
-    Add/set list passw      0b1007      "Please enter next password code from list: \n"
-    Add/set balance text    0b1008      "Your balance is: \n"
-    Add/set withd. amount   0b1009      "Enter amount to withdraw: \n"
-    Add/set withdrawal text 0b100a      "Withdrawal succesful \n"
-    Add/set logout          0b100b      "You have been logged out \n"
+    Add/set wrong login     0b1006      "No such user \n"
+    Add/set wrong passw     0b1007      "Wrong password \n"
+    Add/set list passw      0b1008      "Please enter next password code from list: \n"
+    Add/set balance text    0b1009      "Your balance is: \n"
+    Add/set withd. amount   0b100a      "Enter amount to withdraw: \n"
+    Add/set withdrawal text 0b100b      "Withdrawal succesful \n"
+    Add/set logout          0b100c      "You have been logged out \n"
 
     No (more) updates       0b1111
 
