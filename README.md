@@ -36,10 +36,10 @@ If unexpected op-code is sent, return error op-code and close connection!
 
 - Byte 1: Action "op-code" (client) OR Answer accept/decline (server)
 - Option 1 (everything except withdrawal):
-..* Bytes 2-9: 64 bit integer argument for balance, user card number and password
+    * Bytes 2-9: 64 bit integer argument for balance, user card number and password
 - Option 2 (for withdrawal):
-..* Bytes 2-5: Single use passcode
-..* Bytes 6-9: Amount to withdraw
+    * Bytes 2-5: Single use passcode
+    * Bytes 6-9: Amount to withdraw
 - Byte 10: Not used, for future use?
 
 
