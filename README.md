@@ -3,43 +3,52 @@ This is the worlds most trusted ATM
 
 # Protocol suggestion
 ## Order of communication
-1. Connection started
-2. Server states if something should be updated or not,
-  this is of course followed by an update if there is one
-3. Login request
-4. If login request accepted, do regular customer mode 
-   communication
-5. Logout
-6. Start over from step 2
+The communication can exist in three states after the communication
+is established.
+1. UPDATES
+..* Packages from server only
+..* Client must not send until server states ready with updates
+..* Server must end this state with a "no (more) updates"
+2. LOGIN
+..1. Client sends user number
+..2. Server declines or accepts, if decline start over from previous step  
+..3. Client sends user password
+..4. Server declines or accepts, if decline start over from previous step
+..5. If server accepts, proceed to next state
+3. USER
+..1. Client sends one package only
+..2. Server replies with one package only except if client sent logout
+4. Start over from UPDATES state
 
 ## Package description
 Package size is always 10 bytes except for update data
 transmissions.
-### Customer related
+### States LOGIN and USER
 Below is suggestion for splitting package in to byte parts.
-When client has a request, the answer doesn't need a certain
+When client sends a request, the answer doesn't need a certain
 "op-code" in the reply. An answer with the correct format will
 be sufficient.
 
 - Byte 1: Action "op-code" (client) OR Answer accept/decline (server)
 - Byte 2-9: 64 bit integer argument i.e. balance, withdrawal amount, 
   user card number, password... The reason for 64 bit is that is that
-  I have a lot of CA$H!!!
+  I have a lot of CA$H!!! And also credit cards numbers does not fit
+  within 32 bits
 - Byte 10: Not used, for future use?
 
 
 <!-- -->
     From client:
-    User number         0b0000
-    Password            0b0001
-    Balance             0b0002
-    Withdrawal          0b0003
-    Logout              0b0004
-
-
+    User number         0x00
+    Password            0x01
+    Balance             0x02
+    Withdrawal          0x03
+    Logout              0x04
+ 
+ 
     From server:
-    Accept              0b1000
-    Decline             0b1001
+    Accept              0x10
+    Decline             0x11
 
 ### Update related
 Suggestion is that all update packages are 10 bytes except for actual
@@ -60,6 +69,9 @@ of the language and then the new string two add. So therefore we need
 the size of both the language name packages and the following package
 with the new banner string.
 
+The actions that need two transmissins are all updates within an already
+named language. Argument 1 is the language name, 2 is the new string.
+
 ### Different updates
 All newlines, if any, should be included in the strings so that design choices
 can be freely made in updates.
@@ -68,21 +80,24 @@ Max. 80 characters long string.
 
 
 <!---->
-    Description             Code        Example
-    ===========================================
-    Add language            0b1002      
-    Add/set banner          0b1003      "Buy stocks in ... bla bla bla. \n"
-    Add/set login text      0b1004      "Please enter user number: \n"
-    Add/set passw text      0b1005      "Please enter password: \n"
-    Add/set wrong login     0b1006      "No such user \n"
-    Add/set wrong passw     0b1007      "Wrong password \n"
-    Add/set list passw      0b1008      "Please enter next password code from list: \n"
-    Add/set balance text    0b1009      "Your balance is: \n"
-    Add/set withd. amount   0b100a      "Enter amount to withdraw: \n"
-    Add/set withdrawal text 0b100b      "Withdrawal succesful \n"
-    Add/set logout          0b100c      "You have been logged out \n"
+    Args is the number of data sends required after the send containg the 
+    op code.
 
-    No (more) updates       0b1111
+    Description             Code    Args    Example
+    ===========================================
+    Add language            0x21    1     
+    Add/set banner          0x22    2       "Buy stocks in ... bla bla bla. \n"
+    Add/set login text      0x23    2       "Please enter user number: \n"
+    Add/set passw text      0x24    2       "Please enter password: \n"
+    Add/set wrong login     0x25    2       "No such user \n"
+    Add/set wrong passw     0x26    2       "Wrong password \n"
+    Add/set list passw      0x27    2       "Please enter next password code from list: \n"
+    Add/set balance text    0x28    2       "Your balance is: \n"
+    Add/set withd. amount   0x29    2       "Enter amount to withdraw: \n"
+    Add/set withdrawal text 0x2a    2       "Withdrawal succesful \n"
+    Add/set logout          0x2b    2       "You have been logged out \n"
+
+    No (more) updates       0x2f    0
 
 
 ## Communication example
