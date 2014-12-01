@@ -32,6 +32,8 @@ When client sends a request, the answer doesn't need a certain
 "op-code" in the reply. An answer with the correct format will
 be sufficient.
 
+If unexpected op-code is sent, return error op-code and close connection!
+
 - Byte 1: Action "op-code" (client) OR Answer accept/decline (server)
 - Byte 2-9: 64 bit integer argument i.e. balance, withdrawal amount, 
   user card number, password... The reason for 64 bit is that is that
@@ -52,6 +54,7 @@ be sufficient.
     From server:
     Accept              0x10
     Decline             0x11
+    Error               0x12
 
 ### Update related
 Suggestion is that all update packages are 10 bytes except for actual
