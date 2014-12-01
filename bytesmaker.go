@@ -7,7 +7,22 @@ package bytesmaker
 import "unsafe"
 import "fmt"
 
-/* Converts data of types:
+/* 
+ * Converts an array of bytes to the integer
+ * represented by them 
+ */
+func Int(bytes []byte) int {
+    x := 0
+    length := len(bytes)
+    for i := length-1; i >= 0; i-- {
+        x = x << 8
+        x = x | int(bytes[i])
+    }
+    return x
+}
+
+/* 
+   Converts data of types:
    int, int32, int64, byte and string 
    to a byte array. Least significant byte is at return 
    arrays index 0.
