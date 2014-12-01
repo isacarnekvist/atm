@@ -22,10 +22,10 @@ When client has a request, the answer doesn't need a certain
 be sufficient.
 
 - Byte 1: Action "op-code" (client) OR Answer accept/decline (server)
-- Byte 2: For future use?
-- Byte 3-10: 64 bit integer argument i.e. balance, withdrawal amount, 
+- Byte 2-9: 64 bit integer argument i.e. balance, withdrawal amount, 
   user card number, password... The reason for 64 bit is that is that
   I have a lot of CA$H!!!
+- Byte 10: Not used, for future use?
 
 
 <!-- -->
@@ -48,9 +48,9 @@ checksum.
 
 - Byte 1: Type of update "op-code" (these should be different from op-codes 
           in customer related packages)
-- Byte 2: Not used
-- Byte 3-6: Size of first transmission (32 bit int)
-- Byte 7-10: Size of second transmission, if the action requires one (32 bit int)
+- Byte 1-5: Size of first transmission (32 bit int)
+- Byte 6-9: Size of second transmission, if the action requires one (32 bit int)
+- Byte 10: Not used
 
 The reason the size of two consecutive data transmissions is needed 
 is that some actions need two arguments. For example if we want to 
@@ -59,13 +59,28 @@ of the language and then the new string two add. So therefore we need
 the size of both the language name packages and the following package
 with the new banner string.
 
+### Different updates
+All newlines, if any, should be included in the strings so that design choices
+can be freely made in updates.
+#### Banner
+Max. 80 characters long string.
+
 
 <!---->
-    Add language        0b1002
-    Add/set banner      0b1003
-    Add/set login text  0b1004
-    Add/set ...         0b....
-    No (more) updates   0b1111
+    Description             Code        Example
+    ===========================================
+    Add language            0b1002      
+    Add/set banner          0b1003      "Buy stocks in ... bla bla bla. \n"
+    Add/set login text      0b1004      "Please enter user number: \n"
+    Add/set passw text      0b1005      "Please enter password: \n"
+    Add/set wrong passw     0b1006      "Wrong password \n"
+    Add/set list passw      0b1007      "Please enter next password code from list: \n"
+    Add/set balance text    0b1008      "Your balance is: \n"
+    Add/set withd. amount   0b1009      "Enter amount to withdraw: \n"
+    Add/set withdrawal text 0b100a      "Withdrawal succesful \n"
+    Add/set logout          0b100b      "You have been logged out \n"
+
+    No (more) updates       0b1111
 
 
 ## Communication example
