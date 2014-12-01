@@ -47,7 +47,7 @@ If unexpected op-code is sent, return error op-code and close connection!
     User number         0x00
     Password            0x01
     Balance             0x02
-    Withdrawal          0x03
+    Withdrawal          0x03    Argument in package must be single-use code
     Logout              0x04
  
  
