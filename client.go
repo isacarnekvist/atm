@@ -9,13 +9,7 @@ import (
  * in denna struct. Denna struktur nås 
  * förslagsvis via en map där key är namnet
  * på språket.
- * 
- * Vid uppdateringar får vi tänka ut hur nya språk
- * ska kunna läggas till och gamla uppdateras. 
- * - Ska man kunna göra delvisa uppdateringar? T ex
- *   bara bannern? Detta kanske t o m ska vara enda
- *   sättet, kanske är enklast? Meckigt att skicka 
- *   en hel datastruktur... */
+ */
 type language_commands struct {
     banner      string      // T ex "Investera i den Grekiska banksektorn, ett säkert val!\n"
     login_user  string      // T ex "Välkommen! \nSkriv ditt kortnummer: \n"
