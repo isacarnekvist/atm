@@ -138,11 +138,8 @@ Max. 80 characters long string.
             ------------------------
             ========================
           <-#   -Withdrawal req-   #
+            #    single use code   #
             #        amount        #
-            ------------------------
-            ========================
-          <-#   -Withdrawal req-   #
-            #     one-use-code     #
             ------------------------
             ========================
             #   -Withdrawal ans-   #->
