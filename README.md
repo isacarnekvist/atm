@@ -8,7 +8,7 @@ is established.
 
 1. UPDATES
     * Packages from server only
-    * Client must not send until server states ready with updates
+    * Client must not send in this state
     * Server must end this state with a "no (more) updates"
 2. LOGIN
     1. Client sends user number
