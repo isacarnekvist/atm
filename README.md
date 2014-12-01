@@ -35,10 +35,11 @@ be sufficient.
 If unexpected op-code is sent, return error op-code and close connection!
 
 - Byte 1: Action "op-code" (client) OR Answer accept/decline (server)
-- Byte 2-9: 64 bit integer argument i.e. balance, withdrawal amount, 
-  user card number, password... The reason for 64 bit is that is that
-  I have a lot of CA$H!!! And also credit cards numbers does not fit
-  within 32 bits
+- Option 1 (everything except withdrawal):
+..* Bytes 2-9: 64 bit integer argument for balance, user card number and password
+- Option 2 (for withdrawal):
+..* Bytes 2-5: Single use passcode
+..* Bytes 6-9: Amount to withdraw
 - Byte 10: Not used, for future use?
 
 
