@@ -5,6 +5,7 @@ This is the worlds most trusted ATM
 ## Order of communication
 The communication can exist in three states after the communication
 is established.
+
 1. UPDATES
 ..* Packages from server only
 ..* Client must not send until server states ready with updates
