@@ -7,18 +7,18 @@ The communication can exist in three states after the communication
 is established.
 
 1. UPDATES
-..* Packages from server only
-..* Client must not send until server states ready with updates
-..* Server must end this state with a "no (more) updates"
+    * Packages from server only
+    * Client must not send until server states ready with updates
+    * Server must end this state with a "no (more) updates"
 2. LOGIN
-..1. Client sends user number
-..2. Server declines or accepts, if decline start over from previous step  
-..3. Client sends user password
-..4. Server declines or accepts, if decline start over from previous step
-..5. If server accepts, proceed to next state
+    1. Client sends user number
+    2. Server declines or accepts, if decline start over from previous step  
+    3. Client sends user password
+    4. Server declines or accepts, if decline start over from previous step
+    5. If server accepts, proceed to next state
 3. USER
-..1. Client sends one package only
-..2. Server replies with one package only except if client sent logout
+    1. Client sends one package only
+    2. Server replies with one package only except if client sent logout
 4. Start over from UPDATES state
 
 ## Package description
