@@ -2,6 +2,11 @@ package main
 
 import (
     "net"
+    "os"
+    "strings"
+    "bufio"
+    "fmt"
+    "strconv"
     //"fmt"
 )
 
@@ -30,42 +35,72 @@ var current_language language_commands
 func main() {
 
     // Se till att språk initialiseras och ett start-språk väljs
+    currentState := 0 
     init_lang()
-
     conn, err := net.Dial("tcp", "127.0.0.1:8080")          // Anslut till ip:port
     if err != nil {
         print("Error connecting")
         return
     }
-
-    login_screen(conn)
-
-    /*
-    // Skicka data
-    data := []byte{0x41, 0x42}
-    conn.Write(data)
-
-    // Ta emot!
-    resp := make([]byte, 8)
-    conn.Read(resp)
-
-    // Skriv ut
-    for _, d := range resp {
-        fmt.Printf("%x", d)
+    reader := bufio.NewReader(os.Stdin)
+    defer conn.Close()
+    for  {
+        if currentState == 9 {
+            return
+        }
+        stateHandler(currentState)
     }
-    print("\n")
-
-    // Stäng
-    */
-    conn.Close()
 }
 
-func login_screen(c net.Conn) {
+
+func stateHandler(state Integer){
+    switch state {
+        case 0:
+            update_state()
+        case 1:
+            login_state()
+        case 2:
+            loggedin_state()
+        default :
+            currentState=0
+            update_state()
+    }
+}
+
+func update_state() {
+    while ( currentState == 0){
+        resp := make([]byte, 10)
+        conn.Read(resp)
+        if (resp[0]==0x2f) {
+            currentState==1
+        } 
+        /*
+        * Add code to perform update.
+        */
+}
+
+func login_state(c net.Conn) {
     print(current_language.login_user)
+    line, _ := reader.ReadString('\n')
+    line = strings.TrimSpace(line)
+    userID, err:= strconv.Atoi()
+    if err != nil{
+        println("Invalid userID")
+    } else {
+        
+    }
+
+
 }
+
+
+
 
 /* Initiera ett grundtillstånd som gäller innan
    någon uppdatering skett. */
+func state_handler( state Integer){
+
+}
 func init_lang() {
     languages = make(map[string]language_commands)
 
