@@ -3,6 +3,7 @@ package main
 import (
     "net"
     "os"
+    "ATM/Graph.zip/lib"
     "strings"
     "bufio"
     "fmt"
@@ -87,8 +88,11 @@ func login_state(c net.Conn) {
     if err != nil{
         println("Invalid userID")
     } else {
-        
+        sendData:=make([]byte, 10)
+        bytesmaker.Bytes
+        sendHandler()
     }
+}
 
 
 }
@@ -97,10 +101,11 @@ func login_state(c net.Conn) {
 
 
 /* Initiera ett grundtillstånd som gäller innan
-   någon uppdatering skett. */
+   någon uppdatering skett. 
 func state_handler( state Integer){
 
 }
+*/
 func init_lang() {
     languages = make(map[string]language_commands)
 
