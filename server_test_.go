@@ -66,7 +66,7 @@ func main() {
     testUser(c)                                   /* Uses single-use code 1 and 2 */
 
     /* Test concurrency */
-    time.Sleep(time.Millisecond * 500)
+    time.Sleep(time.Millisecond * 100)
     test_vals_with_new_conn(test_bal - 150, 5)    /* 5 is the current single-use code */
 
     testLogout(c)
