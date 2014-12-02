@@ -58,7 +58,11 @@ func main() {
 
     /* Connect */
     c, err := net.Dial("tcp", "127.0.0.1:" + server_port)
-    if err != nil { close_and_panic(fmt.Sprintf("Connecting failed \n")) }
+    if err != nil { 
+        fmt.Printf("Connecting failed \n")
+        server_pipe.Write(bytesmaker.Bytes("9\n"))
+        panic(err)
+    }
 
     testUpdates(c)
     testLogin(c)
@@ -83,10 +87,14 @@ func testUpdates(c net.Conn) {
 
 func testLogin(c net.Conn) {
 
+    fmt.Printf("Testing login \n")
+
+    fmt.Printf("Sending non-valid id \n")    
     send_ten( login_number, 0xDEADBEEF, c)      /* Wrong id */
     op, _, _ := read_and_decode(c)
     if op != server_decline { close_and_panic(fmt.Sprintf("Did not decline a non-valid id \n")) }
 
+    fmt.Printf("Sending valid id \n")
     send_ten( login_number, valid_id, c)        /* Correct id */
     op, _, _ = read_and_decode(c)
     if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept a valid id \n")) }
@@ -103,6 +111,8 @@ func testLogin(c net.Conn) {
 
 /* Not implemented yet, copied code! */
 func testUser(c net.Conn) {
+
+    fmt.Printf("Testing user interaction \n")
 
     send_ten( user_balance, 0, c)               /* Request balance */
     op, val, _ := read_and_decode(c)
