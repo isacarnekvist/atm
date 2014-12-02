@@ -26,6 +26,7 @@ const (
     server_set_userr            = 0x25 // 37
     server_set_wrong_pwd        = 0x26 // 38
     server_set_temp_pwd_prompt  = 0x27 // 39
+    server_set_temp_pwd_error   = 0x2c // 44
     server_set_balance          = 0x28 // 40
     server_set_withd_prompt     = 0x29 // 41
     server_set_withd_success    = 0x2a // 42
@@ -47,13 +48,23 @@ type User struct {
  */
 var user_db map[int64]User
 
+/*
+ * Starts with zero and gets incremented when updates have been added
+ * Each go-routine keeps track of their clients current version number,
+ * this always starts with zero since clients don't save state when
+ * reboot
+ */
+var latest_client_version int
+
 /* Listens for incoming connection requests and start
  * one go routine per connection.
  */
 func main() {
+
     /* Initialize */
     print("Starting server\n")
     init_user_db()
+    latest_client_version = 0
 
     /* Let clients connect */
     go start_listening()
@@ -75,7 +86,7 @@ func server_prompt(quit chan int) {
         choice := scan_uint()
         switch choice {
         case 1:
-            print("Not implemented at the moment \n")
+            update_prompt()
         case 9:
             quit <- 1
             return
@@ -85,17 +96,60 @@ func server_prompt(quit chan int) {
     }
 }
 
-/* Scans an unsigned integer from stdin
- * Returns -1 if error
- */
-func scan_uint() int {
-    scanner := bufio.NewScanner(os.Stdin)
-    scanner.Scan()
-    choice, err := strconv.Atoi(scanner.Text())
-    if err == nil {
-           return choice
-    } else {
-        return -1
+const (
+    set_language         = 1 
+    set_banner           = 2
+    set_login_prompt     = 3
+    set_userr            = 4
+    set_passw_prompt     = 5
+    set_wrong_pwd        = 6
+    set_temp_pwd_prompt  = 7
+    set_temp_pwd_error   = 8
+    set_balance          = 9
+    set_withd_prompt     = 10
+    set_withd_success    = 11
+    set_logout           = 12
+    save_updates         = 99
+)
+
+/* Client update menu */
+func update_prompt() {
+    for {
+        fmt.Printf("Please enter digit of choice from below: \n" + 
+                    "1) Add/set language \n" +
+                    "2) Add/set banner \n" +
+                    "3) Add/set 'enter user number' question \n" +
+                    "4) Add/set 'wrong user number' message \n" +
+                    "5) Add/set 'enter password' question \n" +
+                    "6) Add/set 'wrong password' message \n" +
+                    "7) Add/set 'enter next temp code' question \n" +
+                    "8) Add/set 'wrong temp code' message \n" +
+                    "9) Add/set balance message \n" +
+                    "10) Add/set withdrawal amount question \n" +
+                    "11) Add/set withdrawal successful message \n" +
+                    "12) Add/set logged out message \n" +
+                    "99) Save changes and go back to main menu \n")
+        choice := scan_uint()
+        switch choice {
+        case set_language:
+        case set_banner:
+        case set_login_prompt:
+        case set_userr:
+        case set_passw_prompt:
+        case set_wrong_pwd:
+        case set_temp_pwd_prompt:
+        case set_temp_pwd_error:
+        case set_balance:
+        case set_withd_prompt:
+        case set_withd_success:
+        case set_logout:
+        case save_updates:
+            print("Saving updates \nReturning to main menu \n")
+            latest_client_version++;
+            return
+        default:
+            fmt.Printf("Not a valid choice \n")
+        }
     }
 }
 
@@ -151,7 +205,15 @@ func handleConnection(c net.Conn) {
     print("Connection closed\n")
 }
 
- /* This handles all communication in the state UPDATES */
+
+/***************************************/
+/*                                     */
+/*      State management methods       */
+/*                                     */
+/***************************************/
+
+
+/* This handles all communication in the state UPDATES */
 func state_updates(c net.Conn) error {
     fmt.Printf("Entered UPDATES state \n")
     d := bytesmaker.Bytes(byte(server_no_updates), byte(0), int64(0))
@@ -159,7 +221,6 @@ func state_updates(c net.Conn) error {
 
     return err
 }
-
 
 
 /*
@@ -182,9 +243,11 @@ func state_login(c net.Conn) (User, error) {
         if err != nil { return User{}, err }                    /* Connection was probably closed */
 
         switch op {
-            
+
+
+        /* Client sent id */
         case login_number:
-            
+
             user_temp, user_exists := user_db[val]
             if user_exists {
                 send_accept(c)
@@ -195,7 +258,8 @@ func state_login(c net.Conn) (User, error) {
             }
 
 
-        case login_pwd:
+        /* Client sent password */
+        case login_pwd:                                         
 
             if valid_id_sent { 
                 if user.password == val {
@@ -209,12 +273,14 @@ func state_login(c net.Conn) (User, error) {
             }
 
 
+        /* Client sent logout request */
         case user_logout:
 
             return user, nil
 
         default:
 
+            send_error(c)
             return User{}, errors.New("Unexpected op code in login")
 
         }
@@ -253,7 +319,7 @@ func state_user(user User, c net.Conn) error {
             fmt.Printf("User logged out \n")
             return nil
         default:
-            send_ten( server_error, 0, c )                      /* Respond with error */
+            send_error(c)                                       /* Respond with error */
             fmt.Printf("Client sent unexpected op code \n")
             return errors.New("Unexpected op code")             /* Close connection */
         }
@@ -261,6 +327,14 @@ func state_user(user User, c net.Conn) error {
 
     return nil
 }
+
+
+
+/***************************************/
+/*                                     */
+/*            Initializers             */
+/*                                     */
+/***************************************/
 
 /*
  * Creates a database with some users
@@ -286,6 +360,19 @@ func init_user_db() {
     }
 }
 
+/*
+ * Returns a slice of all odd numbers 1 - 99
+ * Used for creating single use-codes when
+ * withdrawing
+ */
+func odd_ints() []int {
+    x := make([]int, 50)
+    for i := 0; i < 50; i += 1 {
+        x[i] = i*2 + 1
+    }
+    return x
+}
+
 /***************************************/
 /*                                     */
 /* A lot of convenience methods follow */
@@ -293,7 +380,7 @@ func init_user_db() {
 /***************************************/
 
 /*
- * Reads and returns op-code, value, error
+ * Reads and returns op-code, 64-bit value, error
  */
 func read_and_decode(c net.Conn) (int, int64, error) {
     data := make([]byte, 10)
@@ -301,6 +388,23 @@ func read_and_decode(c net.Conn) (int, int64, error) {
     op := bytesmaker.Int(data[0:1])
     val := bytesmaker.Int(data[1:9])
     return op, int64(val), err
+}
+
+/* 
+ * Scans an unsigned integer from stdin
+ * Conventient for menu
+ *
+ * Returns -1 if input was not digit
+ */
+func scan_uint() int {
+    scanner := bufio.NewScanner(os.Stdin)
+    scanner.Scan()
+    choice, err := strconv.Atoi(scanner.Text())
+    if err == nil {
+           return choice
+    } else {
+        return -1
+    }
 }
 
 /*
@@ -312,21 +416,23 @@ func send_ten(op int, val int64, c net.Conn) {
     c.Write(data)
 }
 
+/* 
+ * Simply sends a server-decline op-code with rest set to zero 
+ */
 func send_decline(c net.Conn) {
     send_ten( server_decline, 0, c )
 }
 
-func send_accept(c net.Conn) {
-    send_ten( server_accept, 0, c )
+/* 
+ * Simply sends a server-error op-code with rest set to zero 
+ */
+func send_error(c net.Conn) {
+    send_ten( server_error, 0, c )
 }
 
-/*
- * Returns a slice of all odd numbers 1 - 99
+/* 
+ * Simply sends a server-accept op-code with rest set to zero 
  */
-func odd_ints() []int {
-    x := make([]int, 50)
-    for i := 0; i < 50; i += 1 {
-        x[i] = i*2 + 1
-    }
-    return x
+func send_accept(c net.Conn) {
+    send_ten( server_accept, 0, c )
 }
