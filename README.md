@@ -2,6 +2,8 @@
 This is the worlds most trusted ATM
 
 # Protocol suggestion
+DO NOT change existing op-codes since these are now implemented!
+
 ## Order of communication
 The communication can exist in three states after the communication
 is established.
