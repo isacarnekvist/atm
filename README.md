@@ -58,9 +58,9 @@ If unexpected op-code is sent, return error op-code and close connection!
     From server:
     Accept              0x10
     Decline             0x11
-    Error               0x12    Server should shut down connection because of
-                                because then the behaviour when protocol isn't
-                                followed can simply stay undefined
+    Error               0x12    Server should shut down connection because then the 
+                                behaviour when protocol isn't followed can simply stay 
+                                undefined
 
 ### Update related
 Suggestion is that all update packages are 10 bytes except for actual
