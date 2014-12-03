@@ -20,9 +20,9 @@ is established.
     5. If server accepts, proceed to next state
 3. USER
     1. Client sends one package only
-    2. If client sent logout, go to UPDATES,
-    otherwise server replies with one package 
-    only.
+    2. If client sent logout, go to UPDATES, otherwise server replies with 
+    one package only. The answer package is accept/decline. For balance,
+    the 64-bit field holds the answer.
 4. Start over from UPDATES state
 
 ## Package description
@@ -56,7 +56,7 @@ If unexpected op-code is sent, return error op-code and close connection!
  
  
     From server:
-    Accept              0x10
+    Accept              0x10    The 64 bit field can supply an answer for a question
     Decline             0x11
     Error               0x12    Server should shut down connection because then the 
                                 behaviour when protocol isn't followed can simply stay 
