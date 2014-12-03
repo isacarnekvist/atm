@@ -109,6 +109,7 @@ Max. 80 characters long string.
     Add/set withd. amount   0x2a    2       "Enter amount to withdraw: \n"
     Add/set withdrawal text 0x2b    2       "Withdrawal succesful \n"
     Add/set logout          0x2c    2       "You have been logged out \n"
+    Add/set main menu       0x2d    2       "Welcome!!! \n"
 
     No (more) updates       0x2f    0
 
