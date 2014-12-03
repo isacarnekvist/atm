@@ -135,8 +135,11 @@ func start_listening() {
  */
 func handleConnection(c net.Conn) {
     print("Connection started\n")
+    client_version := 0
     for {
-        err := state_updates(c)
+        fmt.Printf("Latest version: %d \n", latest_client_version)
+        fmt.Printf("Client version: %d \n", client_version)
+        err := state_updates(c, &client_version)
         if err != nil { break }
 
         user, err2 := state_login(c)
@@ -161,12 +164,23 @@ func handleConnection(c net.Conn) {
 
 
 /* This handles all communication in the state UPDATES */
-func state_updates(c net.Conn) error {
+func state_updates(c net.Conn, client_version *int) error {
     fmt.Printf("Entered UPDATES state \n")
-    d := bytesmaker.Bytes(byte(server_no_updates), byte(0), int64(0))
-    _, err := c.Write(d)
 
-    return err
+    if *client_version < latest_client_version {
+        update_handler.UpdateClient(c)
+        *client_version = latest_client_version
+    } else {
+        send_ten( server_no_updates, 0, c )
+    }
+
+    /* 
+       Since not listening to client, we cannot
+       discover errors from the client in this
+       state and therefore return nil at this
+       point
+     */
+    return nil
 }
 
 
