@@ -104,11 +104,11 @@ Max. 80 characters long string.
     Add/set wrong login     0x25    2       "No such user \n"
     Add/set wrong passw     0x26    2       "Wrong password \n"
     Add/set list passw      0x27    2       "Please enter next password code from list: \n"
-    Add/set wrong list pwd  0x2c    2       "Wrong list password \n"
-    Add/set balance text    0x28    2       "Your balance is: \n"
-    Add/set withd. amount   0x29    2       "Enter amount to withdraw: \n"
-    Add/set withdrawal text 0x2a    2       "Withdrawal succesful \n"
-    Add/set logout          0x2b    2       "You have been logged out \n"
+    Add/set wrong list pwd  0x28    2       "Wrong list password \n"      # v These were changed!
+    Add/set balance text    0x29    2       "Your balance is: \n"
+    Add/set withd. amount   0x2a    2       "Enter amount to withdraw: \n"
+    Add/set withdrawal text 0x2b    2       "Withdrawal succesful \n"
+    Add/set logout          0x2c    2       "You have been logged out \n"
 
     No (more) updates       0x2f    0
 
