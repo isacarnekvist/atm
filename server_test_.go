@@ -57,11 +57,32 @@ func main() {
 
 /* Assume no updates at this point NEED TO CHANGE THIS? */
 func testUpdates() {
-    c := newServer();
-    op, _, _ := read_and_decode(c)
-    if op != server_no_updates { 
-        abort("Server did not send 'no more updates' when just started") 
-    }
+    newServer();
+
+    /* The code below does not work since you in some way have to send
+     * an EOF over the pipe which seems quite hard... */
+
+    // /* This is nasty code, manually enters updates */
+    // update_sequence1 := "1\n"+                            // Chooses 1) Update clients 
+    //                     "1\n"+                            // Add new language
+    //                     "svenska\n"+                      //
+    //                     "9\nsvenska\n"+                   // Add swedish balance message
+    //                     "balans\n"
+
+    // server_pipe.Write(bytesmaker.Bytes(update_sequence1)) // End balance msg with eof
+    // update_sequence2 := "99\n"                            // Save
+    // server_pipe.Write(bytesmaker.Bytes(update_sequence2)) 
+
+    // /* Now test that update is sent from server */
+
+    // read_and_decode(c) // A no more updates was already sent before
+    // send_ten( login_number, 1, c )
+    // read_and_decode(c) // Acknowledge response
+    // send_ten( user_logout , 0, c )
+
+    // op, _, _ := read_and_decode(c)
+    // if op != server_set_language { abort("Server didn't send new language name") }
+
     closeServer();
 }
 
