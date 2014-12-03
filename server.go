@@ -32,6 +32,7 @@ const (
     server_set_withd_prompt     = 0x2a // 42
     server_set_withd_success    = 0x2b // 43
     server_set_logout           = 0x2c // 44
+    server_set_main             = 0x2d // 45
     server_no_updates           = 0x2f // 47
 )
 

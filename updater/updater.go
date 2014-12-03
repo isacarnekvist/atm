@@ -29,6 +29,7 @@ const (
     set_withd_prompt     = 10
     set_withd_success    = 11
     set_logout           = 12
+    set_main             = 13
     save_updates         = 99
 )
 
@@ -54,6 +55,7 @@ const (
     server_set_withd_prompt     = 0x2a // 42
     server_set_withd_success    = 0x2b // 43
     server_set_logout           = 0x2c // 44
+    server_set_main             = 0x2d // 45
     server_no_updates           = 0x2f // 47
 )
 
@@ -88,6 +90,7 @@ func (u *Updater) Update_menu() {
                     "10) Add/set withdrawal amount question \n" +
                     "11) Add/set withdrawal successful message \n" +
                     "12) Add/set logged out message \n" +
+                    "13) Add/set main menu message \n" +
                     "99) Save and leave update manager \n")
         choice := scan_uint()
         
@@ -96,7 +99,7 @@ func (u *Updater) Update_menu() {
             break
         } else if choice == set_language { 
             u.addLanguage()
-        } else if (choice >= set_language && choice <= set_logout){
+        } else if (choice >= set_language && choice <= set_main){
             u.addString(choice)
         } else {
             fmt.Printf("Not a valid choice \n")
@@ -118,7 +121,7 @@ func (u *Updater) addLanguage() {
         fmt.Printf("Language already in database, nothing was added \n")
     } else {
         fmt.Printf("Added language: %s \n", name)
-        u.language_db[name] = make([]string, 13)
+        u.language_db[name] = make([]string, 14)
     }
 }
 
