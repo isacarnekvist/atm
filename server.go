@@ -27,11 +27,11 @@ const (
     server_set_userr            = 0x25 // 37
     server_set_wrong_pwd        = 0x26 // 38
     server_set_temp_pwd_prompt  = 0x27 // 39
-    server_set_temp_pwd_error   = 0x2c // 44
-    server_set_balance          = 0x28 // 40
-    server_set_withd_prompt     = 0x29 // 41
-    server_set_withd_success    = 0x2a // 42
-    server_set_logout           = 0x2b // 43
+    server_set_temp_pwd_error   = 0x28 // 40
+    server_set_balance          = 0x29 // 41
+    server_set_withd_prompt     = 0x2a // 42
+    server_set_withd_success    = 0x2b // 43
+    server_set_logout           = 0x2c // 44
     server_no_updates           = 0x2f // 47
 )
 
@@ -99,22 +99,6 @@ func server_prompt(quit chan int) {
         }
     }
 }
-
-const (
-    set_language         = 1 
-    set_banner           = 2
-    set_login_prompt     = 3
-    set_userr            = 4
-    set_passw_prompt     = 5
-    set_wrong_pwd        = 6
-    set_temp_pwd_prompt  = 7
-    set_temp_pwd_error   = 8
-    set_balance          = 9
-    set_withd_prompt     = 10
-    set_withd_success    = 11
-    set_logout           = 12
-    save_updates         = 99
-)
 
 /* 
  * Listens for connections and starts separate

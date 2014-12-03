@@ -25,11 +25,11 @@ const (
     server_set_userr            = 0x25 // 37
     server_set_wrong_pwd        = 0x26 // 38
     server_set_temp_pwd_prompt  = 0x27 // 39
-    server_set_temp_pwd_error   = 0x2c // 44
-    server_set_balance          = 0x28 // 40
-    server_set_withd_prompt     = 0x29 // 41
-    server_set_withd_success    = 0x2a // 42
-    server_set_logout           = 0x2b // 43
+    server_set_temp_pwd_error   = 0x28 // 40
+    server_set_balance          = 0x29 // 41
+    server_set_withd_prompt     = 0x2a // 42
+    server_set_withd_success    = 0x2b // 43
+    server_set_logout           = 0x2c // 44
     server_no_updates           = 0x2f // 47
 )
 
