@@ -8,6 +8,7 @@ import (
     "net"
     "os"
     "strconv"
+    "atm/updater"
 )
 
 const (
@@ -55,6 +56,7 @@ var user_db map[int64]User
  * reboot
  */
 var latest_client_version int
+var update_handler *updater.Updater
 
 /* Listens for incoming connection requests and start
  * one go routine per connection.
@@ -64,6 +66,7 @@ func main() {
     /* Initialize */
     print("Starting server\n")
     init_user_db()
+    update_handler = updater.NewUpdater()
     latest_client_version = 0
 
     /* Let clients connect */
@@ -86,7 +89,8 @@ func server_prompt(quit chan int) {
         choice := scan_uint()
         switch choice {
         case 1:
-            update_prompt()
+            update_handler.Update_menu()
+            latest_client_version++
         case 9:
             quit <- 1
             return
@@ -111,47 +115,6 @@ const (
     set_logout           = 12
     save_updates         = 99
 )
-
-/* Client update menu */
-func update_prompt() {
-    for {
-        fmt.Printf("Please enter digit of choice from below: \n" + 
-                    "1) Add/set language \n" +
-                    "2) Add/set banner \n" +
-                    "3) Add/set 'enter user number' question \n" +
-                    "4) Add/set 'wrong user number' message \n" +
-                    "5) Add/set 'enter password' question \n" +
-                    "6) Add/set 'wrong password' message \n" +
-                    "7) Add/set 'enter next temp code' question \n" +
-                    "8) Add/set 'wrong temp code' message \n" +
-                    "9) Add/set balance message \n" +
-                    "10) Add/set withdrawal amount question \n" +
-                    "11) Add/set withdrawal successful message \n" +
-                    "12) Add/set logged out message \n" +
-                    "99) Save changes and go back to main menu \n")
-        choice := scan_uint()
-        switch choice {
-        case set_language:
-        case set_banner:
-        case set_login_prompt:
-        case set_userr:
-        case set_passw_prompt:
-        case set_wrong_pwd:
-        case set_temp_pwd_prompt:
-        case set_temp_pwd_error:
-        case set_balance:
-        case set_withd_prompt:
-        case set_withd_success:
-        case set_logout:
-        case save_updates:
-            print("Saving updates \nReturning to main menu \n")
-            latest_client_version++;
-            return
-        default:
-            fmt.Printf("Not a valid choice \n")
-        }
-    }
-}
 
 /* 
  * Listens for connections and starts separate
@@ -276,7 +239,7 @@ func state_login(c net.Conn) (User, error) {
         /* Client sent logout request */
         case user_logout:
 
-            return user, nil
+            return User{}, nil
 
         default:
 
