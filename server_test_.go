@@ -43,7 +43,104 @@ var server_pipe io.WriteCloser
 const server_port = "8081"
 
 func main() {
-    /* Connect */
+
+    testUpdates()
+
+    testLogin()
+
+    testUser()
+
+    fmt.Printf("OK \nAll tests passed \n")
+    fmt.Printf("Quitting server \n")
+    server_pipe.Write(bytesmaker.Bytes("9\n"))
+}
+
+/* Assume no updates at this point NEED TO CHANGE THIS? */
+func testUpdates() {
+    c := newServer();
+    op, _, _ := read_and_decode(c)
+    if op != server_no_updates { 
+        abort("Server did not send 'no more updates' when just started") 
+    }
+    closeServer();
+}
+
+func testLogin() {
+    c := newServer()
+
+    /* Recieve no more updates since just started server */
+    read_and_decode(c)
+
+    /* Try non-correct and correct id to login */
+    send_ten( login_number, 0xDEADBEEF, c )
+    op, _, _ := read_and_decode(c)
+    if op != server_decline { 
+        abort("Server did not decline wrong id")
+    }
+
+    send_ten( login_number, valid_id, c )
+    op, _, _ = read_and_decode(c)
+    if op != server_accept { 
+        abort("Server did not accept valid id") 
+    }
+
+    /* Log out after submitting id */
+    send_ten( user_logout, 0, c )
+    op, _, _ = read_and_decode(c)
+    if op != server_no_updates { 
+        abort("Server did not send 'no more updates' when user logged out") 
+    }
+
+    /* Test different passwords */
+    send_ten( login_number, valid_id, c )
+    read_and_decode(c)
+
+    send_ten( login_pwd , 0xDEADBEEF, c )
+    op, _, _ = read_and_decode(c)
+    if op != server_decline { 
+        abort("Server did not decline non-valid password") 
+    }
+
+    /* Log out after submitting wrong password */
+    send_ten( user_logout, 0, c )
+    op, _, _ = read_and_decode(c)
+    if op != server_no_updates { 
+        abort("Server did not send 'no more updates' when user logged out") 
+    }
+
+    /* Log in with correct id and password */
+    send_ten( login_number, valid_id, c )
+    send_ten( login_pwd , valid_pwd, c )
+    op, _, _ = read_and_decode(c)
+    if op != server_accept { 
+        abort("Server did not accept valid password") 
+    }
+
+    closeServer()
+}
+
+func testUser() {
+    fmt.Printf("Testing user state \n")
+    c := newServer()
+    read_and_decode(c)
+    send_ten( login_number, valid_id, c )
+    send_ten( login_pwd, valid_pwd, c )
+
+    /* TODO */
+
+    closeServer()
+}
+
+func abort(err string) {
+    closeServer()
+    panic(err)
+}
+
+/* 
+ * Creates a new server to check agains with
+ * reset accounts
+ */
+func newServer() net.Conn {
     cmd := exec.Command("go", "run", "server.go", server_port)
     var pipe_err error
     server_pipe, pipe_err = cmd.StdinPipe()
@@ -65,138 +162,11 @@ func main() {
         panic(err)
     }
 
-    testUpdates(c)
-    testLogin(c)
+    return c
+}
 
-    testUser(c)                                   /* Uses single-use code 1 and 2 */
-
-    /* Test concurrency */
-    time.Sleep(time.Millisecond * 100)
-    test_vals_with_new_conn(test_bal - 150, 5)    /* 5 is the current single-use code */
-
-    testLogout(c)
-
-    fmt.Printf("OK \nAll tests passed \n")
-    fmt.Printf("Quitting server \n")
+func closeServer() {
     server_pipe.Write(bytesmaker.Bytes("9\n"))
-}
-
-/* Assume no updates at this point NEED TO CHANGE THIS */
-func testUpdates(c net.Conn) {
-    read_and_decode(c)
-}
-
-func testLogin(c net.Conn) {
-
-    fmt.Printf("Testing login \n")
-
-    fmt.Printf("Sending non-valid id \n")    
-    send_ten( login_number, 0xDEADBEEF, c)      /* Wrong id */
-    op, _, _ := read_and_decode(c)
-    if op != server_decline { close_and_panic(fmt.Sprintf("Did not decline a non-valid id \n")) }
-
-    fmt.Printf("Sending valid id \n")
-    send_ten( login_number, valid_id, c)        /* Correct id */
-    op, _, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept a valid id \n")) }
-    
-    send_ten( login_pwd, 6666, c)               /* Wrong password */
-    op, _, _ = read_and_decode(c)
-    if op != server_decline { close_and_panic(fmt.Sprintf("Did not decline a non-valid password \n")) }
-    
-    send_ten( login_pwd, valid_pwd, c)          /* Correct password */
-    op, _, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept a valid password \n")) }
-
-}
-
-/* Not implemented yet, copied code! */
-func testUser(c net.Conn) {
-
-    fmt.Printf("Testing user interaction \n")
-
-    send_ten( user_balance, 0, c)               /* Request balance */
-    op, val, _ := read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept balance inquiry \n")) }
-    if val != 1000 { close_and_panic(fmt.Sprintf("Balance is not the expected one, restart server? \n")) }
-    
-    send_ten( user_balance, 0, c)               /* Request balance again */
-    op, val, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept second balance inquiry \n")) }
-    if val != 1000 { close_and_panic(fmt.Sprintf("Balance is not the same when checked again \n")) }
-
-    send_ten( user_withdrawal, 0xDEADBEEF, c)   /* Request withdrawal with wrong code */
-    op, val, _ = read_and_decode(c)
-    if op != server_decline { close_and_panic(fmt.Sprintf("Did not decline non-valid single-use code \n")) }
-
-    send_ten( user_balance, 0, c)               /* Request balance again */
-    op, val, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept second balance inquiry \n")) }
-    if val != 1000 { close_and_panic(fmt.Sprintf("Balance is not the same when checked again \n")) }
-
-    send_ten_2( user_withdrawal, 1, 100, c)     /* Request withdrawal with correct code */
-    op, val, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not decline non-valid single-use code \n")) }
-
-    send_ten_2( user_withdrawal, 3, 50, c)      /* Request withdrawal with correct code */
-    op, val, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not decline non-valid single-use code \n")) }
-
-    send_ten( user_balance, 0, c)               /* Request balance again */
-    op, val, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept second balance inquiry \n")) }
-    if val != 850 { close_and_panic(fmt.Sprintf("Balance is not the expected after withdrawal \n")) }
-
-}
-
-func testLogout(c net.Conn) {
-
-    send_ten( user_logout, 0, c)
-    op, _, _ := read_and_decode(c)
-
-    /* Next package from server should be an update statement */
-    if op & 0xf0 != 0x20 { close_and_panic(fmt.Sprintf("Server did not send update statement after logout \n")) }
-
-}
-
-func test_vals_with_new_conn(valid_bal int, valid_temp int) {
-    /* Connect */
-    c, err := net.Dial("tcp", "127.0.0.1:" + server_port)
-    if err != nil { close_and_panic(fmt.Sprintf("Connecting failed \n")) }
-
-    read_and_decode(c)
-
-    send_ten( login_number, valid_id, c)        /* Correct id */
-    op, _, _ := read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept a valid id \n")) }
-    
-    send_ten( login_pwd, valid_pwd, c)          /* Correct password */
-    op, _, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept a valid password \n")) }
-
-    send_ten( user_balance, 0, c)               /* Request balance */
-    op, val, _ := read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept balance inquiry \n")) }
-    if val != int64(valid_bal) { 
-        close_and_panic(fmt.Sprintf("Customer have too much money on other ATM (∆ = %d)\n", val - int64(valid_bal))) 
-    }
-
-    send_ten_2( user_withdrawal, valid_temp, 100, c)   /* Request withdrawal with valid code */
-    op, _, _ = read_and_decode(c)
-    if op != server_accept { close_and_panic(fmt.Sprintf("Did not accept valid single-use code \n")) }
-
-    c.Close()
-
-}
-
-/* 
- * Used instead of panic so that started servers gets shut
- * down and stops occupying any port
- */
-func close_and_panic(err string) {
-    fmt.Printf("Shutting down server \n")
-    server_pipe.Write(bytesmaker.Bytes("9\n"))
-    panic(err)
 }
 
 /*
@@ -204,6 +174,8 @@ func close_and_panic(err string) {
  * through c
  */
 func send_ten(op int, val int64, c net.Conn) {
+    fmt.Printf("Package sent to server:       op: %.2x val64: %d/0x%X int32(1): %d int32(2): %6.d \n", 
+                op, val, val, int32(val & 0xffffff), int32((val >> 32) & 0xffffff))
     data := bytesmaker.Bytes( byte(op), val, byte(0) )
     c.Write(data)
 }
@@ -225,5 +197,7 @@ func read_and_decode(c net.Conn) (int, int64, error) {
     _, err := c.Read(data)
     op := bytesmaker.Int(data[0:1])
     val := bytesmaker.Int(data[1:9])
+    fmt.Printf("Package recieved from server: op: %.2x val64: %d/0x%X int32(1): %d int32(2): %6.d \n", 
+                op, val, val, int32(val & 0xffffff), int32((val >> 32) & 0xffffff))
     return op, int64(val), err
 }
