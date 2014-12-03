@@ -159,12 +159,25 @@ func (u *Updater) UpdateClient(c net.Conn) {
     for language := range u.language_db {
 
         /* Add language */
-        send_ten( server_set_language, int64(len(language)) , c)
+        lang_str_len := len(language)
+        send_ten( server_set_language, int64(lang_str_len) , c)
         c.Write(bytesmaker.Bytes(language))
 
         /* Send all strings */
         data_strings := u.language_db[language]
-        print(data_strings)
+        for i, data := range data_strings {
+            op_code := int(0x21) + i
+
+            if len(data) > 0 {
+                /* Send lengths of two upcoming sends */
+                lengths := int64(  len(data) << 32 | lang_str_len  )
+                send_ten(op_code, lengths, c )
+
+                /* Send language string and data string */
+                c.Write(bytesmaker.Bytes(language))
+                c.Write(bytesmaker.Bytes(data))
+            }
+        }
     }
 
     /* Notify client that updates are done */
