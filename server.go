@@ -273,7 +273,7 @@ func state_user(user User, c net.Conn) error {
                 user.balance -= amount         
                 user.temp_index++
                 user_db[int64(user.id)] = user                  /* Changed user-state needs to be written back */
-                send_ten( server_accept, 0, c )
+                send_ten( server_accept, user.balance , c )
             } else {
                 send_ten( server_decline, 0, c )
             }
