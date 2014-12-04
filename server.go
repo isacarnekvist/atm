@@ -143,6 +143,7 @@ func handleConnection(c net.Conn) {
         err := state_updates(c, &client_version)
         if err != nil { break }
 
+
         user, err2 := state_login(c)
         if err2 != nil { break }
 
