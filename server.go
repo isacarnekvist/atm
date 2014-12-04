@@ -2,7 +2,7 @@ package main
 
 import (
     "bufio"
-    "ATM/Graph.zip/lib"
+    "atm/bytesmaker"
     "errors"
     "fmt"
     "net"
