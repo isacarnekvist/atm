@@ -204,6 +204,12 @@ func login_state_userID(state *int, c net.Conn) {
     line = strings.TrimSpace(line)
     userID, err:= strconv.Atoi(line)
 
+    if line=="c"{
+        handle_logout(state, c)
+        return
+
+    }
+
     if err != nil{
         println(current_language.login_user_declined)
     } else {
@@ -233,6 +239,11 @@ func login_state_password(state *int, c net.Conn) {
     line = strings.TrimSpace(line)
     password, err:= strconv.Atoi(line)
 
+    if line=="c"{
+        handle_logout(state, c)
+        return
+    }
+
     if err != nil{
         println(current_language.login_pass_declined)
     } else {
@@ -243,12 +254,14 @@ func login_state_password(state *int, c net.Conn) {
             println("error has occured wile sending userID, program will exit")
             *state=9           
         } else {
-            switch op {
-                case server_accept:
+            switch {
+                case op==server_accept:
                     *state = 3
                     println(current_language.login_pass_accepted)
-                case server_decline:
+                    return
+                case op==server_decline:
                     println(current_language.login_pass_declined)
+                    return
             }
         }
     }
@@ -267,14 +280,21 @@ func loggedin_state(state *int, c net.Conn) {
     switch inp {
         case 1:
             handle_balance_request(state, c)
+            return
         case 2:
             handle_withdrawal(state, c)
+            return
         case 9:
-            *state=9 
+            handle_logout(state, c)
+            return
         default:
             println("Invalid Choice")
     }
     }
+}
+func handle_logout( state *int, c net.Conn){
+            send_ten(user_logout, int64(0), c)
+            *state=0 
 }
 
 
@@ -361,10 +381,10 @@ func init_lang() {
 
     svenska := language_commands {
         banner      : "Investera i den Grekiska banksektorn, ett säkert val!\n",
-        login_user  : "Välkommen! \nSkriv ditt kortnummer: \n",
-        login_user_accepted : "UserID accepted\n",
+        login_user  : "Välkommen! \nSkriv ditt kortnummer (Skriv c för att logga ut): \n",
+        login_user_accepted : "UserID accepted\n ",
         login_user_declined : "Invalid userID\n",
-        login_pass  : "Skriv in ditt lösenord: \n",
+        login_pass  : "Skriv in ditt lösenord(Skriv c för att logga ut): \n",
         login_pass_accepted : "Password accepted\n",
         login_pass_declined : "Invalid password",
         main_menu   : "Huvudmeny, gör ett val \n 1: Saldo \n 2: Uttag, 9: Exit\n",
