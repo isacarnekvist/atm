@@ -138,7 +138,7 @@ func update_state(state *int, c net.Conn) {
                 c.Read(resp1)
                 c.Read(resp2)
                 lang := languages[string(resp1)]
-                lang[op-command_start-1]=string(resp2)
+                lang[op-command_start]=string(resp2)
                 return
             default :
                 return
