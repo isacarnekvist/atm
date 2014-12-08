@@ -183,7 +183,7 @@ func login_state_userID(state *int, c net.Conn) {
     }
 
     if err != nil{
-        println(current_language[userr])
+        print(current_language[userr])
     } else {
         send_ten(login_number, int64(userID), c )
         op, _, err2 := read_and_decode(c)
@@ -196,7 +196,7 @@ func login_state_userID(state *int, c net.Conn) {
                 case server_accept:
                     *state = 2
                 case server_decline:
-                    //println(current_language[userr])
+                    print(current_language[userr])
             }
         }
     }
@@ -216,7 +216,7 @@ func login_state_password(state *int, c net.Conn) {
     }
 
     if err != nil{
-                println(current_language[wrong_pwd])
+                print(current_language[wrong_pwd])
     } else {
         send_ten(login_pwd, int64(password), c)
         op, _, err2 := read_and_decode(c)
@@ -240,6 +240,7 @@ func login_state_password(state *int, c net.Conn) {
 
 
 func loggedin_state(state *int, c net.Conn) {
+    print(current_language[banner])
     print(current_language[main_prompt])
     line, _ := reader.ReadString('\n')
     line = strings.TrimSpace(line)
@@ -300,7 +301,7 @@ func handle_withdrawal(state *int, c net.Conn){
         } else {
             switch op{
             case server_accept:
-                println(current_language[withd_success])
+                print(current_language[withd_success])
                 fmt.Printf("%d\n", w_amount)
             case server_decline:
                 print(current_language[temp_pwd_error])
@@ -317,7 +318,7 @@ func handle_balance_request(state *int, c net.Conn){
             } else {
                 switch op{
                 case server_accept:
-                    println(current_language[balance])
+                    print(current_language[balance])
                     fmt.Printf("%d\n", value)
                 default:
                     return
