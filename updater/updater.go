@@ -87,7 +87,7 @@ func (u *Updater) init_language_base() {
 
     phrases[set_banner]         = "Köp grekiska aktier, för en säker pension! \n"
     phrases[set_login_prompt]   = "Skriv in ditt användar-id för att fortsätta: \n"
-    phrases[set_userr]          = "Finns inget sådant, försök igen: \n"
+    phrases[set_userr]          = "Finns inget sådant id \n"
     phrases[set_passw_prompt]   = "Skriv in ditt lösenord, eller c för att logga ut: \n"
     phrases[set_wrong_pwd]      = "Fel lösenord \n"     /* Efter denna skrivs ovanstående väl igen? */
 
@@ -101,6 +101,31 @@ func (u *Updater) init_language_base() {
     phrases[set_logout]         = "Du är nu utloggad. \n"
 
     u.language_db["svenska"] = phrases
+    
+    phrases2 := make([]string, 14)
+
+    phrases2[set_main]           = "您好! 请做选择: \n" + 
+                                  "1) 多少钱 \n" + 
+                                  "2) 拿钱 \n" +
+                                  "3) 另外语言 \n" +
+                                  "4) 结束 \n"
+
+    phrases2[set_banner]         = "你应该在我们的银行保存！ \n"
+    phrases2[set_login_prompt]   = "输入客户号码： \n"
+    phrases2[set_userr]          = "客户号码不对 \n"
+    phrases2[set_passw_prompt]   = "输入你的密码, 还是 ‘c’ \n"
+    phrases2[set_wrong_pwd]      = "密码不对 \n"     /* Efter denna skrivs ovanstående väl igen? */
+
+    phrases2[set_withd_prompt]   = "您想拿多少钱？ \n"
+    phrases2[set_temp_pwd_prompt]= "输入下一个密码: \n"
+    phrases2[set_temp_pwd_error] = "不对 \n"        /* Samma här? */
+    phrases2[set_withd_success]  = "通过了 \n"
+
+    phrases2[set_balance]        = "您有：\n"
+
+    phrases2[set_logout]         = "通过了 \n"
+
+    u.language_db["中文"] = phrases2
 }
 
 /* All the following defines methods that can be invoked on an Updater struct */
@@ -111,9 +136,9 @@ func (u *Updater) Update_menu() {
         fmt.Printf("Please enter digit of choice from below: \n" + 
                     "1) Add/set language \n" +
                     "2) Add/set banner \n" +
-                    "3) Add/set 'enter user number' question \n" +
-                    "4) Add/set 'wrong user number' message \n" +
-                    "5) Add/set 'enter password' question \n" +
+                    "3) Add/set 'enter user number' message \n" +
+                    "4) Add/set 'enter user password' message \n" +
+                    "5) Add/set 'wrong id' question \n" +
                     "6) Add/set 'wrong password' message \n" +
                     "7) Add/set 'enter next temp code' question \n" +
                     "8) Add/set 'wrong temp code' message \n" +
