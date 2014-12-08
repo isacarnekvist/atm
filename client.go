@@ -278,8 +278,6 @@ func handle_withdrawal(state *int, c net.Conn){
     line, _ := reader.ReadString('\n')
     line = strings.TrimSpace(line)
     inp, err := strconv.Atoi(line)
-    println(len(line))
-    println(line)
 
     print(current_language[withd_prompt])
     line2, _ := reader.ReadString('\n')
@@ -288,7 +286,7 @@ func handle_withdrawal(state *int, c net.Conn){
 
   
 
-    if err != nil || err2!=nil || len(line)>2 {
+    if err != nil || err2!=nil || len(line)<2 {
                 print(current_language[temp_pwd_error])
     } else {
 
