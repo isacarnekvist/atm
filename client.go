@@ -3,7 +3,7 @@ package main
 import (
     "net"
     "os"
-    "ATM/Graph.zip/lib"
+    "atm/bytesmaker"
     "strings"
     "bufio"
     "fmt"
@@ -27,41 +27,44 @@ const (
     server_set_userr            = 0x25 // 37
     server_set_wrong_pwd        = 0x26 // 38
     server_set_temp_pwd_prompt  = 0x27 // 39
-    server_set_balance          = 0x28 // 40
-    server_set_withd_prompt     = 0x29 // 41
-    server_set_withd_success    = 0x2a // 42
-    server_set_logout           = 0x2b // 43
+    server_set_temp_pwd_error   = 0x28 // 40
+    server_set_balance          = 0x29 // 41
+    server_set_withd_prompt     = 0x2a // 42
+    server_set_withd_success    = 0x2b // 43
+    server_set_logout           = 0x2c // 44
+    server_set_main             = 0x2d // 45
     server_no_updates           = 0x2f // 47
+
+
+    //message indexes
+
+    banner                      = 0x00 // 34
+    login_prompt                = 0x01 // 35
+    passw_prompt                = 0x02  // 36
+    userr                       = 0x03 // 37
+    wrong_pwd                   = 0x04 // 38
+    temp_pwd_prompt             = 0x05 // 39
+    temp_pwd_error              = 0x06 // 40
+    balance                     = 0x07 // 41
+    withd_prompt                = 0x08 // 42
+    withd_success               = 0x09 // 43
+    logout                      = 0x0a // 44
+    main_prompt                 = 0x0b // 45
+
+    langage_length              = 12
+    command_start               = 0x22
+
+
 )
 
-/* Alla kommandon för ett språk lagras i
- * in denna struct. Denna struktur nås 
- * förslagsvis via en map där key är namnet
- * på språket.
- */
-type language_commands struct {
-    banner              string      // T ex "Investera i den Grekiska banksektorn, ett säkert val!\n"
-    login_user          string      // T ex "Välkommen! \nSkriv ditt kortnummer: \n"
-    login_pass          string      // T ex "Skriv in ditt lösenord: \n"
-    login_user_accepted string
-    login_pass_accepted string
-    login_user_declined string
-    login_pass_declined string
-    main_menu           string       // T ex "Huvudmeny, gör ett val \n 1: Saldo \n 2: ..."
-    temp_pwd_prompt     string
-    withdrawal          string
-    withdrawal_succs    string
-    balance             string 
-    logout              string       // T ex "Ditt saldo är:\n"
-}
 
 /* Genom att skicka t ex "中文" som key så får man 
    tillbaka den struct som beskriver programmets olika delar. */
-var languages map[string]language_commands
+var languages map[string][]string
 
 /* Detta är den struct som kommandon läses från
    just nu. */
-var current_language language_commands
+var current_language [] string
 
 
 // Reader to be used for input
@@ -107,9 +110,11 @@ func stateHandler(state *int, c net.Conn){
 
 func update_state(state *int, c net.Conn) {
     for *state == 0 {
+
         op, value, err := read_and_decode(c)
-        size1:=value<<32
-        size2:= value & 0xffffffff
+        size1:=value & 0xffffffff
+        size2:= value>>32
+
         resp1 := make([]byte, size1)
         resp2 := make([]byte, size2)
         switch {
@@ -118,91 +123,58 @@ func update_state(state *int, c net.Conn) {
                 *state=9
                 return 
             case op == server_no_updates:
+
                 *state=1
+                language_coice(state, c)
+                return
+
             case op == server_set_language:
                 c.Read(resp1)
-                new_lang := language_commands{}
+                new_lang := make([]string, langage_length)
                 languages[string(resp1)]= new_lang
+                return
 
-            case op == server_set_banner:
+            case op >= server_set_banner && op <= server_set_main:
                 c.Read(resp1)
                 c.Read(resp2)
                 lang := languages[string(resp1)]
-                lang.banner=string(resp2)
-
-
-            case op == server_set_login_prompt:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.login_user=string(resp2)
-
-
-            case op == server_set_passw_prompt:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.login_pass=string(resp2)
-
-            //case op == server_set_userr:
-            //    c.Read(resp1)
-             //   c.Read(resp2)
-              //  lang := languages[string(resp1)]
-                //TODO:
-                //lang.user_logout=string(resp2)
-
-            case op == server_set_wrong_pwd:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.login_pass_accepted=string(resp2)
-
-            case op == server_set_temp_pwd_prompt:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.temp_pwd_prompt=string(resp2)
-
-            case op == server_set_balance:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.balance=string(resp2)
-
-            case op == server_set_withd_prompt:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.withdrawal=string(resp2)
-
-            case op == server_set_withd_success:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.withdrawal_succs=string(resp2)
-
-            case op == server_set_logout:
-                c.Read(resp1)
-                c.Read(resp2)
-                lang := languages[string(resp1)]
-                lang.logout=string(resp2)
-            case op == server_no_updates:
-                *state = 1
+                lang[op-command_start-1]=string(resp2)
+                return
             default :
-                fmt.Printf("undefined update op : %d \n", op)
+                return
         }
     }
 }
 
+func language_coice(state *int, c net.Conn){
+    println("Choose language / välj språk")
+    lang_list:= make([]string, len(languages))
+    count:=0
+    for language := range languages {
+        lang_list[count] =  language
+        fmt.Printf("%d : %s \n", count, language)
+        count++
+    }
 
+    line, _ := reader.ReadString('\n')
+    line = strings.TrimSpace(line)
+    lang, err:= strconv.Atoi(line)
+    if err != nil{
+        *state= 9
+        return
+    } else {
+       current_language = languages[lang_list[lang]]
+    }
+
+}
 
 func login_state_userID(state *int, c net.Conn) {
-    print(current_language.login_user)
+    print(current_language[login_prompt])
    
     // Code to read from prompt, could be replaced with other io code
     line, _ := reader.ReadString('\n')
     line = strings.TrimSpace(line)
-    userID, err:= strconv.Atoi(line)
+    userID, err := strconv.Atoi(line)
 
     if line=="c"{
         handle_logout(state, c)
@@ -211,7 +183,7 @@ func login_state_userID(state *int, c net.Conn) {
     }
 
     if err != nil{
-        println(current_language.login_user_declined)
+        println(current_language[userr])
     } else {
         send_ten(login_number, int64(userID), c )
         op, _, err2 := read_and_decode(c)
@@ -223,16 +195,15 @@ func login_state_userID(state *int, c net.Conn) {
             switch op {
                 case server_accept:
                     *state = 2
-                    println(current_language.login_user_accepted)
                 case server_decline:
-                    println(current_language.login_user_declined)
+                    //println(current_language[userr])
             }
         }
     }
 }
 
 func login_state_password(state *int, c net.Conn) {
-   print(current_language.login_pass)
+   print(current_language[passw_prompt])
    
     // Code to read from prompt, could be replaced with other io code
     line, _ := reader.ReadString('\n')
@@ -245,7 +216,7 @@ func login_state_password(state *int, c net.Conn) {
     }
 
     if err != nil{
-        println(current_language.login_pass_declined)
+                println(current_language[wrong_pwd])
     } else {
         send_ten(login_pwd, int64(password), c)
         op, _, err2 := read_and_decode(c)
@@ -257,10 +228,9 @@ func login_state_password(state *int, c net.Conn) {
             switch {
                 case op==server_accept:
                     *state = 3
-                    println(current_language.login_pass_accepted)
                     return
                 case op==server_decline:
-                    println(current_language.login_pass_declined)
+                    print(current_language[wrong_pwd])
                     return
             }
         }
@@ -270,12 +240,12 @@ func login_state_password(state *int, c net.Conn) {
 
 
 func loggedin_state(state *int, c net.Conn) {
-    print(current_language.main_menu)
+    print(current_language[main_prompt])
     line, _ := reader.ReadString('\n')
     line = strings.TrimSpace(line)
     inp, err:= strconv.Atoi(line)
     if err != nil{
-        println("Invalid choice")
+        return
     } else { 
     switch inp {
         case 1:
@@ -284,36 +254,42 @@ func loggedin_state(state *int, c net.Conn) {
         case 2:
             handle_withdrawal(state, c)
             return
-        case 9:
+        case 3:
+            language_coice(state, c)
+
+        case 4:
             handle_logout(state, c)
             return
         default:
-            println("Invalid Choice")
+            return
     }
     }
 }
 func handle_logout( state *int, c net.Conn){
             send_ten(user_logout, int64(0), c)
             *state=0 
+            print(current_language[logout])
 }
 
 
 func handle_withdrawal(state *int, c net.Conn){
 
-    print(current_language.temp_pwd_prompt)
+    print(current_language[temp_pwd_prompt])
     line, _ := reader.ReadString('\n')
     line = strings.TrimSpace(line)
     inp, err := strconv.Atoi(line)
+    println(len(line))
+    println(line)
 
-    print(current_language.withdrawal)
-    line, _ = reader.ReadString('\n')
-    line = strings.TrimSpace(line)
-    w_amount, err2:= strconv.Atoi(line)
+    print(current_language[withd_prompt])
+    line2, _ := reader.ReadString('\n')
+    line2 = strings.TrimSpace(line2)
+    w_amount, err2:= strconv.Atoi(line2)
 
   
 
-    if err != nil || err2!=nil{
-        println("Invalid choice")
+    if err != nil || err2!=nil || len(line)>2 {
+                print(current_language[temp_pwd_error])
     } else {
 
         toSend:= int64(w_amount)<<32
@@ -326,10 +302,10 @@ func handle_withdrawal(state *int, c net.Conn){
         } else {
             switch op{
             case server_accept:
-                println(current_language.withdrawal_succs)
+                println(current_language[withd_success])
                 fmt.Printf("%d\n", w_amount)
             case server_decline:
-                println("Withdrawal denied")
+                print(current_language[temp_pwd_error])
             }
         }
     }
@@ -343,10 +319,10 @@ func handle_balance_request(state *int, c net.Conn){
             } else {
                 switch op{
                 case server_accept:
-                    println(current_language.balance)
+                    println(current_language[balance])
                     fmt.Printf("%d\n", value)
-                case server_decline:
-                    println("Balance denied")
+                default:
+                    return
                 }
             }
 
@@ -377,39 +353,7 @@ func state_handler( state Integer){
 }
 */
 func init_lang() {
-    languages = make(map[string]language_commands)
-
-    svenska := language_commands {
-        banner      : "Investera i den Grekiska banksektorn, ett säkert val!\n",
-        login_user  : "Välkommen! \nSkriv ditt kortnummer (Skriv c för att logga ut): \n",
-        login_user_accepted : "UserID accepted\n ",
-        login_user_declined : "Invalid userID\n",
-        login_pass  : "Skriv in ditt lösenord(Skriv c för att logga ut): \n",
-        login_pass_accepted : "Password accepted\n",
-        login_pass_declined : "Invalid password",
-        main_menu   : "Huvudmeny, gör ett val \n 1: Saldo \n 2: Uttag, 9: Exit\n",
-        temp_pwd_prompt : "Ange din engångskod: \n",
-        withdrawal : "Ange summan du vill ta ut \n",
-        withdrawal_succs : "Lyckat uttag, på: ",
-        balance     : "Ditt saldo är:\n",
-    }
-    languages["svenska"] = svenska
-
-    中文 := language_commands {
-        banner      : "你的钱才是我么的！\n",
-        login_user  : "欢迎！\n输入你的客户号码: \n",
-        login_user_accepted : "UserID accepted\n",
-        login_user_declined : "Invalid userID\n",
-        login_pass  : "输入你的密码: \n",
-        login_pass_accepted : "Password accepted\n",
-        login_pass_declined : "Invalid password \n",
-        main_menu   : "请做选择 \n 1: 多少钱 \n 2: ...",
-        temp_pwd_prompt: "Ange din fyrasiffriga engångskod: \n",
-        balance     : "你的钱: \n",
-    }
-    languages["中文"] = 中文
-
+    languages = make(map[string][]string)
+    svenska := make([]string, langage_length)
     current_language = svenska
 }
-
-
