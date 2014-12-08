@@ -68,7 +68,7 @@ func main() {
     print("Starting server\n")
     init_user_db()
     update_handler = updater.NewUpdater()
-    latest_client_version = 0
+    latest_client_version = 1  /* There is always an out-of-the-box update */
 
     /* Let clients connect */
     go start_listening()
@@ -169,6 +169,8 @@ func state_updates(c net.Conn, client_version *int) error {
     fmt.Printf("Entered UPDATES state \n")
 
     if *client_version < latest_client_version {
+        fmt.Printf("Latest version: %d \n", latest_client_version)
+        fmt.Printf("Client version: %d \n", *client_version)
         update_handler.UpdateClient(c)
         *client_version = latest_client_version
     } else {

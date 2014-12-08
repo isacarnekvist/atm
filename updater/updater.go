@@ -68,8 +68,39 @@ type Updater struct {
 func NewUpdater() *Updater {
     res := &Updater{}
     res.language_db = make(map[string][]string)
+    res.init_language_base()
 
     return res
+}
+
+/*
+ * Creates an 'out-of-the-box' language database
+ */
+func (u *Updater) init_language_base() {
+    phrases := make([]string, 14)
+
+    phrases[set_main]           = "Välkommen! Gör ett val: \n" + 
+                                  "1) Se saldo \n" + 
+                                  "2) Gör uttag \n" +
+                                  "3) Byt språk \n" +
+                                  "4) Logga ut \n"
+
+    phrases[set_banner]         = "Köp grekiska aktier, för en säker pension! \n"
+    phrases[set_login_prompt]   = "Skriv in ditt användar-id för att fortsätta: \n"
+    phrases[set_userr]          = "Finns inget sådant, försök igen: \n"
+    phrases[set_passw_prompt]   = "Skriv in ditt lösenord, eller c för att logga ut: \n"
+    phrases[set_wrong_pwd]      = "Fel lösenord \n"     /* Efter denna skrivs ovanstående väl igen? */
+
+    phrases[set_withd_prompt]   = "Skriv in belopp att ta ut: \n"
+    phrases[set_temp_pwd_prompt]= "Skriv in nästa lösenord från listan: \n"
+    phrases[set_temp_pwd_error] = "Fel kod \n"        /* Samma här? */
+    phrases[set_withd_success]  = "Uttag lyckades \n"
+
+    phrases[set_balance]        = "Ditt saldo är: \n"
+
+    phrases[set_logout]         = "Du är nu utloggad. \n"
+
+    u.language_db["svenska"] = phrases
 }
 
 /* All the following defines methods that can be invoked on an Updater struct */
@@ -162,11 +193,13 @@ func (u *Updater) UpdateClient(c net.Conn) {
     for language := range u.language_db {
 
         /* Add language */
+        fmt.Printf("Adding language: %s \n", language)
         lang_str_len := len(language)
         send_ten( server_set_language, int64(lang_str_len) , c)
         c.Write(bytesmaker.Bytes(language))
 
         /* Send all strings */
+        fmt.Printf("Sending language data... \n")
         data_strings := u.language_db[language]
         for i, data := range data_strings {
             op_code := int(0x21) + i
@@ -184,6 +217,7 @@ func (u *Updater) UpdateClient(c net.Conn) {
     }
 
     /* Notify client that updates are done */
+    fmt.Printf("Sending no more updates notification \n")
     send_ten( server_no_updates, 0, c )
 }
 
