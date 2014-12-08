@@ -208,10 +208,12 @@ func (u *Updater) UpdateClient(c net.Conn) {
                 /* Send lengths of two upcoming sends */
                 lengths := int64(  len(data) << 32 | lang_str_len  )
                 send_ten(op_code, lengths, c )
+                fmt.Printf("Sending: 0x%X lang_len: %d data_len: %d\n", op_code, lang_str_len, len(data))
 
                 /* Send language string and data string */
                 c.Write(bytesmaker.Bytes(language))
                 c.Write(bytesmaker.Bytes(data))
+                fmt.Printf("lang: %s\ndata: %s", language, data)
             }
         }
     }
