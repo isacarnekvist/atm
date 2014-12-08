@@ -202,7 +202,7 @@ func (u *Updater) UpdateClient(c net.Conn) {
         fmt.Printf("Sending language data... \n")
         data_strings := u.language_db[language]
         for i, data := range data_strings {
-            op_code := int(0x21) + i
+            op_code := int(0x20) + i
 
             if len(data) > 0 {
                 /* Send lengths of two upcoming sends */
