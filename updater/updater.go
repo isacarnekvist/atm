@@ -17,11 +17,11 @@ import (
 
 /* Data indices */
 const (
-    set_language         = 1 
+    set_language         = 1  
     set_banner           = 2
     set_login_prompt     = 3
-    set_userr            = 4
-    set_passw_prompt     = 5
+    set_passw_prompt     = 4
+    set_userr            = 5
     set_wrong_pwd        = 6
     set_temp_pwd_prompt  = 7
     set_temp_pwd_error   = 8
